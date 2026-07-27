@@ -66,13 +66,19 @@
       </form>
 
       {% if pred %}
-      {% set parts = pred|split(' ') %}
-      {% set estimate = parts[-1] %}
       <section class="prediction-panel">
         <span class="prediction-label">Projected charge</span>
-        <strong>₦{{ '{:,.0f}'.format(estimate|float) }}</strong>
+        <strong id="prediction-value">Loading...</strong>
         <p class="prediction-note">This is an estimate based on the selected profile.</p>
       </section>
+      <script>
+        const rawPrediction = "{{ pred|e }}";
+        const numericValue = Number(rawPrediction.replace('Expected Bill will', '').trim());
+        const formatted = Number.isFinite(numericValue)
+          ? new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(numericValue)
+          : rawPrediction;
+        document.getElementById('prediction-value').textContent = formatted;
+      </script>
       {% endif %}
     </main>
   </div>
