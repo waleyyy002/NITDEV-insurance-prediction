@@ -13,18 +13,25 @@
 #    keeps the final image smaller and faster to pull/deploy.
 #    pycaret==1.0.0 is a 2020-era package built for Python 3.6-3.8, so we
 #    pin the base image to Python 3.8 rather than a newer version.
-FROM python:3.8-slim
+FROM python:3.8-slim-buster
 
 # 2. Set the working directory inside the container. Every command below
 #    (COPY, RUN, CMD) now runs relative to /app inside the container's
 #    filesystem - it does not touch your real machine.
 WORKDIR /app
 
-# 3. Install OS-level build tools needed to compile some ML/scientific
-#    Python packages (e.g. numpy/scipy/pycaret) from source if no
-#    pre-built wheel is available for this platform.
+# 3. Install OS-level build tools and headers required by PyCaret's
+#    dependencies, especially those that compile C/C++ extensions.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    python3-dev \
+    gfortran \
+    libopenblas-dev \
+    liblapack-dev \
+    libatlas-base-dev \
+    libgomp1 \
+    libffi-dev \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # 4. Copy ONLY the requirements file first, then install dependencies.
@@ -34,7 +41,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #    re-downloading every package - this makes rebuilds much faster
 #    whenever you only change app.py.
 COPY requirements.txt .
-RUN pip install --upgrade pip setuptools wheel \
+RUN pip install --upgrade pip setuptools wheel Cython==0.29.21 \
     && pip install --no-cache-dir -r requirements.txt
 
 # 5. Now copy the rest of the application code (this layer changes often,
