@@ -1,8 +1,9 @@
 """
+
 Insurance charge prediction API.
 
 Rewritten from Flask to FastAPI. If you're new to MLOps, the comments below
-explain *why* each piece exists, not just what it does - the goal is to show
+explain why each piece exists, not just what it does - the goal is to show
 how a trained model gets wrapped into a production-ready web service.
 """
 
@@ -21,7 +22,7 @@ from pycaret.regression import load_model, predict_model
 COLUMNS = ["age", "sex", "bmi", "children", "smoker", "region"]
 
 # This dict holds the loaded model in memory for the life of the process.
-# MLOps tip: loading a model is *slow* (deserializing weights/pipelines from
+# MLOps tip: loading a model is slow (deserializing weights/pipelines from
 # disk). You never want to do that inside a request handler - it would make
 # every prediction pay the loading cost. Instead, load it ONCE when the
 # server starts, and re-use that same in-memory object for every request.
@@ -38,7 +39,7 @@ async def lifespan(app: FastAPI):
     ml_models.clear()
 
 
-# `lifespan=lifespan` wires the startup/shutdown logic above into FastAPI.
+# lifespan=lifespan wires the startup/shutdown logic above into FastAPI.
 app = FastAPI(
     title="Insurance Charge Predictor",
     description="Predicts expected medical insurance charges from customer attributes.",
@@ -53,14 +54,14 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
-# Pydantic models describe the *shape* of your data with Python type hints.
+# Pydantic models describe the shape of your data with Python type hints.
 # FastAPI uses this class to automatically:
 #   1. Validate incoming JSON (reject bad requests with a clear 422 error
 #      before your prediction code ever runs)
 #   2. Generate interactive API docs for free at /docs
 #   3. Parse the JSON body into a typed Python object for you
 # This is a big upgrade over the old Flask version, which trusted
-# `request.get_json()` blindly and would crash on malformed input.
+# request.get_json() blindly and would crash on malformed input.
 class InsuranceInput(BaseModel):
     age: int = Field(..., example=19, description="Age of the primary beneficiary")
     sex: str = Field(..., example="female")
@@ -84,7 +85,7 @@ def run_prediction(data: dict) -> float:
 
 @app.get("/")
 def home(request: Request):
-    # FastAPI's Jinja2Templates requires the `request` object in the context
+    # FastAPI's Jinja2Templates requires the request object in the context
     # dict - that's a Starlette/FastAPI convention, not an optional extra.
     return templates.TemplateResponse("home.html", {"request": request})
 
@@ -101,8 +102,8 @@ def predict(
 ):
     """Handles the HTML <form> submission from home.html.
 
-    `Form(...)` tells FastAPI to read each field from the submitted form
-    data (not JSON) and convert it to the annotated type - e.g. `age: int`
+    Form(...) tells FastAPI to read each field from the submitted form
+    data (not JSON) and convert it to the annotated type - e.g. age: int
     will 422 automatically if someone types letters into that field.
     """
     data = {
@@ -124,9 +125,9 @@ def predict(
 def predict_api(payload: InsuranceInput):
     """JSON API for programmatic use (e.g. curl, another service, a frontend fetch call).
 
-    Because `payload` is typed as `InsuranceInput`, FastAPI has already
+    Because payload is typed as InsuranceInput, FastAPI has already
     validated and parsed the request body by the time this function runs -
-    there's no manual `request.get_json()` + manual field checking needed.
+    there's no manual request.get_json() + manual field checking needed.
     """
     prediction = run_prediction(payload.model_dump())
     return {"prediction": prediction}
@@ -145,8 +146,8 @@ def health():
     return {"status": "ok", "model_loaded": "insurance_model" in ml_models}
 
 
-if __name__ == "__main__":
-    # Local dev entrypoint: `python app.py`.
+if _name_ == "_main_":
+    # Local dev entrypoint: python app.py.
     # In production (Render), uvicorn is started directly via the Procfile
     # instead, so this block never runs there - see the Procfile.
     import uvicorn
