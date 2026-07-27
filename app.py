@@ -146,7 +146,7 @@ def health():
     return {"status": "ok", "model_loaded": "insurance_model" in ml_models}
 
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     # Local dev entrypoint: python app.py.
     # In production (Render), uvicorn is started directly via the Procfile
     # instead, so this block never runs there - see the Procfile.

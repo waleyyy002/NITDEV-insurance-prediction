@@ -1,14 +1,4 @@
-[3:11 pm, 27/07/2026] Machine Learning Ndubuisi: fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
-jinja2==3.1.2
-pycaret==1.0.0
-pandas==1.1.5
-numpy==1.19.5
-scipy==1.5.4
-scikit-learn==0.22.1
-joblib==0.17.0
-[3:11 pm, 27/07/2026] Machine Learning Ndubuisi: # ---- Dockerfile for the Insurance Charge Predictor (FastAPI app) ----
+# ---- Dockerfile for the Insurance Charge Predictor (FastAPI app) ----
 #
 # MLOps note: this image pins EVERY dependency version explicitly and
 # installs them all in one step. That single install layer is the one
