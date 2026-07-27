@@ -34,7 +34,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #    re-downloading every package - this makes rebuilds much faster
 #    whenever you only change app.py.
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r requirements.txt
 
 # 5. Now copy the rest of the application code (this layer changes often,
 #    so it's placed after the slow dependency-install layer).
